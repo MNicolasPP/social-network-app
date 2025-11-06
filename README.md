@@ -10,6 +10,7 @@
 **Meta interna:** 24 de noviembre  
 
 ---
+<img width="767" height="672" alt="Captura de pantalla 2025-11-05 a la(s) 9 56 31 p m" src="https://github.com/user-attachments/assets/667cbf22-1a5d-4c6b-9ae1-9f1cc907974c" />
 
 ## **📅 Cronograma General**
 
