@@ -13,42 +13,7 @@
 <img width="767" height="672" alt="Captura de pantalla 2025-11-05 a la(s) 9 56 31 p m" src="https://github.com/user-attachments/assets/667cbf22-1a5d-4c6b-9ae1-9f1cc907974c" />
 
 
-##  Arquitectura del Proyecto
 
-Este proyecto sigue una **arquitectura monolítica modular (MVC)**, ideal para equipos pequeños y desarrollo ágil.  
-Todo el backend se maneja dentro de una sola aplicación estructurada por módulos (Auth, Usuarios, Posts, etc.), conectada a una base de datos común.
-
----
-
-###  Estructura general
-
-```
-red-social/
-│
-├── frontend/                 # Interfaz del usuario (React / React Native / Flutter)
-│
-├── backend/
-│   ├── src/
-│   │   ├── app.js            # Configuración principal (Express)
-│   │   ├── routes/           # Definición de rutas y endpoints
-│   │   │   ├── auth.routes.js
-│   │   │   ├── user.routes.js
-│   │   │   ├── post.routes.js
-│   │   │   └── comment.routes.js
-│   │   ├── controllers/      # Lógica de cada endpoint
-│   │   ├── models/           # Modelos (ORM / esquema de DB)
-│   │   ├── services/         # Reglas de negocio y funciones auxiliares
-│   │   ├── middlewares/      # Autenticación, validaciones, permisos
-│   │   └── config/           # Configuración de base de datos y variables de entorno
-│   │
-│   ├── package.json
-│   └── ...
-│
-└── database/
-└── red_social.sql (o scripts de migración)
-```
-
----
 
 ### Buenas prácticas
 
@@ -57,13 +22,17 @@ red-social/
 - Ramas por funcionalidad en Git (ej. `feature/auth`, `feature/posts`).
 - Archivo `README.md` con instrucciones de instalación y ejecución.
 - Código limpio y organizado por capas (MVC).
+- Crear **componentes reutilizables** en `/src/components/`.  
+- Centralizar todas las peticiones HTTP en `/src/services/api.js`.  
+- Mantener **nombres consistentes** para pantallas y rutas.  
+- Usar **hooks personalizados** para estados o efectos recurrentes.  
+- Probar vistas en **Android y iOS** (Expo facilita esto).  
+- Trabajar en ramas separadas por funcionalidad (`feature/feed`, `feature/profile`, etc.).  
+
+
 
 
 ---
-
-¿Quieres que te agregue al bloque también una **sección de instalación y ejecución** (comandos para levantar el backend y frontend)?
-Así lo puedes pegar al final del README y quedaría completo.
-
 
 ## **📅 Cronograma General**
 
@@ -144,7 +113,23 @@ Así lo puedes pegar al final del README y quedaría completo.
 └── .env
 
 ```
-
+```
+red-social-react-native/
+│
+├── src/
+│ ├── components/      # Componentes reutilizables (botones, inputs, tarjetas, etc.)
+│ ├── screens/         # Pantallas principales (Login, Feed, Perfil, etc.)
+│ ├── navigation/      # Configuración de navegación (stacks, tabs, etc.)
+│ ├── services/        # Conexión con la API (axios o fetch)
+│ ├── context/         # Estado global (usuario autenticado, tema, etc.)
+│ ├── hooks/           # Hooks personalizados
+│ ├── assets/          # Imágenes, íconos, fuentes
+│ ├── App.js           # Punto de entrada principal
+│ └── theme/           # Estilos globales o constantes de diseño
+│
+├── package.json
+└── README.md
+```
 ---
 
 ## **✅ Checkpoints de Avance**
@@ -170,8 +155,4 @@ Así lo puedes pegar al final del README y quedaría completo.
 ---
 
 **Última actualización:** 5 de noviembre de 2025  
-```
 
----
-
-¿Quieres que te lo prepare también en una **versión visual Gantt (barra de tiempos con dependencias)** en Markdown o prefieres que te genere un **.png tipo diagrama** para añadir al repo (en `/docs/`)?
