@@ -9,13 +9,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 
 import authService from '../utils/auth';
 
-console.log("AUTH:", authService);
-
-export default function LoginScreen({ navigation, onLoginSuccess }) {
+export default function SignupScreen({ navigation }) {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
   const mountedRef = useRef(true);
 
   useEffect(() => {
-    const checkServer = async () => {
+    const initialize = async () => {
       try {
         const isAwake = await authService.checkServerStatus();
         if (mountedRef.current) setServerReady(isAwake);
@@ -32,14 +32,32 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
         if (mountedRef.current) setServerReady(false);
       }
     };
+    initialize();
 
-    checkServer();
     return () => { mountedRef.current = false; };
   }, []);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handleSignup = async () => {
+    if (!username || !email || !password) {
       Alert.alert('Error', 'Por favor completa todos los campos');
+      return;
+    }
+
+    if (username.length < 3) {
+      Alert.alert('Error', 'El nombre de usuario debe tener al menos 3 caracteres');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      Alert.alert('Error', 'Por favor ingresa un email válido');
+      return;
+    }
+
+    if (password.length < 8) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres');
       return;
     }
 
@@ -47,18 +65,19 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
     setProgress({ current: 0, total: 12 });
 
     try {
-      const userData = await authService.login(email, password, (current, total) => {
+      await authService.signUp(username, email, password, (current, total) => {
         if (mountedRef.current) setProgress({ current, total });
       });
 
       if (!mountedRef.current) return;
 
-      if (onLoginSuccess) onLoginSuccess(userData);
-      else navigation.navigate('Feed');
+      Alert.alert('Éxito', 'Cuenta creada. Inicia sesión.', [
+        { text: 'OK', onPress: () => navigation.navigate('Login') },
+      ]);
 
     } catch (error) {
       if (mountedRef.current) {
-        Alert.alert('Error', error.message || 'Credenciales incorrectas');
+        Alert.alert('Error', error.message || 'No se pudo crear la cuenta');
       }
     } finally {
       if (mountedRef.current) {
@@ -73,7 +92,6 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
         <Text style={styles.loadingText}>Verificando servidor...</Text>
-        <Text style={styles.loadingSubtext}>Esto puede tomar unos segundos</Text>
       </View>
     );
   }
@@ -82,8 +100,7 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Despertando servidor...</Text>
-        <Text style={styles.loadingSubtext}>Esto puede tomar hasta 60 segundos</Text>
+        <Text style={styles.loadingText}>Creando cuenta...</Text>
         {progress && (
           <Text style={styles.progressText}>
             Intento {progress.current} de {progress.total}
@@ -98,57 +115,71 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          <Text style={styles.logo}>📱</Text>
-          <Text style={styles.appName}>Social Network</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+
+          <View style={styles.logoContainer}>
+            <Text style={styles.logo}>📱</Text>
+            <Text style={styles.appName}>Social Network</Text>
+          </View>
+
+          <Text style={styles.title}>Crear Cuenta</Text>
+          <Text style={styles.subtitle}>Únete a la comunidad</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre de usuario"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            placeholderTextColor="#999"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#999"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña (mínimo 8 caracteres)"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholderTextColor="#999"
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <Text style={styles.buttonText}>Crear Cuenta</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.linkText}>
+              ¿Ya tienes cuenta? <Text style={styles.linkTextBold}>Inicia sesión</Text>
+            </Text>
+          </TouchableOpacity>
+
         </View>
-
-        <Text style={styles.title}>Iniciar Sesión</Text>
-        <Text style={styles.subtitle}>Bienvenido de vuelta</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          placeholderTextColor="#999"
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholderTextColor="#999"
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Signup')}
-          style={styles.linkButton}
-        >
-          <Text style={styles.linkText}>
-            ¿No tienes cuenta? <Text style={styles.linkTextBold}>Regístrate</Text>
-          </Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5' },
+  scrollContent: { flexGrow: 1 },
   content: { flex: 1, justifyContent: 'center', padding: 24 },
   logoContainer: { alignItems: 'center', marginBottom: 40 },
-  logo: { fontSize: 60, marginBottom: 8 },
-  appName: { fontSize: 24, fontWeight: 'bold', color: '#007AFF' },
+  logo: { fontSize: 60 },
+  appName: { fontSize: 24, fontWeight: 'bold', color: '#007AFF', marginBottom: 24 },
   title: { fontSize: 32, fontWeight: 'bold', marginBottom: 8 },
   subtitle: { fontSize: 16, color: '#666', marginBottom: 32 },
   input: {
@@ -167,14 +198,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
-    elevation: 4,
   },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   linkButton: { marginTop: 24, alignItems: 'center' },
-  linkText: { color: '#666', fontSize: 14 },
+  linkText: { color: '#666' },
   linkTextBold: { color: '#007AFF', fontWeight: '600' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { marginTop: 16, fontSize: 18, fontWeight: '600' },
-  loadingSubtext: { marginTop: 8, fontSize: 14, color: '#666' },
   progressText: { marginTop: 12, fontSize: 14, color: '#999' },
 });
